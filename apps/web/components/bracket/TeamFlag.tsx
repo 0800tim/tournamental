@@ -1,6 +1,6 @@
 "use client";
 
-import { CSSProperties } from "react";
+import { CSSProperties, useState } from "react";
 import styles from "./TeamFlag.module.css";
 
 type Size = "xs" | "sm" | "md" | "lg" | "xl";
@@ -31,6 +31,14 @@ type Props = {
    * sides in a knockout match visibly recede.
    */
   dim?: boolean;
+  /**
+   * Shown in place of the image when `/flags/<code>.svg` fails to load.
+   * Defaults to the team code. The Rugby World Cup 2027 data carries no
+   * SVG for Ireland (the IRFU mark is not freely licensed, see
+   * data/rwc-2027/teams.json), so without a fallback every Ireland tile
+   * would be a broken image.
+   */
+  fallbackEmoji?: string;
   className?: string;
 };
 
@@ -67,8 +75,10 @@ export function TeamFlag({
   shape = "rect",
   selectionRing = false,
   dim = false,
+  fallbackEmoji,
   className = "",
 }: Props) {
+  const [imageFailed, setImageFailed] = useState(false);
   const isCircle = shape === "circle";
   const circleDim = isCircle ? CIRCLE_SIZE[size] : null;
   const { w, h } = SIZE[size];
@@ -119,9 +129,20 @@ export function TeamFlag({
       data-selection-ring={selectionRing ? "true" : undefined}
       data-dim={dim ? "true" : undefined}
     >
+      {imageFailed ? (
+        <span
+          className={styles.flagFallback}
+          data-flag-fallback="true"
+          aria-hidden="true"
+          style={{ fontSize: Math.round((isCircle ? circleDim! : h) * (fallbackEmoji ? 0.6 : 0.34)) }}
+        >
+          {fallbackEmoji ?? code}
+        </span>
+      ) : (
       <img
         className={styles.flagImg}
         src={`/flags/${code}.svg`}
+        onError={() => setImageFailed(true)}
         alt={`${name ?? code} flag`}
         width={isCircle ? circleDim! : w}
         height={isCircle ? circleDim! : h}
@@ -138,6 +159,7 @@ export function TeamFlag({
             : undefined
         }
       />
+      )}
       {sparkle && <span className={styles.shimmer} aria-hidden="true" />}
       {sparkle && <span className={styles.glow} aria-hidden="true" />}
     </span>
